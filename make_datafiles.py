@@ -12,11 +12,19 @@ chunks_dir = os.path.join(processed_dir, "chunked")
 # We use these to separate the tweet sentences in the .bin datafiles
 SENTENCE_START = '<s>'
 SENTENCE_END = '</s>'
+BRACKETS = {'-lrb-': '(',
+            '-rrb-': ')',
+            '-lcb-': '{',
+            '-rcb-': '}',
+            '-lsb-': '[',
+            '-rsb-': ']',
+            '``': '"',
+            "''": '"'}
 
 num_expected_articles = 33445
 
-VOCAB_SIZE = 77801
-CHUNK_SIZE = 1000  # num examples per chunk, for the chunked data
+VOCAB_SIZE = 76416
+CHUNK_SIZE = 100  # num examples per chunk, for the chunked data
 
 
 def chunk_file(set_name):
@@ -60,6 +68,67 @@ def read_text_file(text_file):
     return lines
 
 
+def clean_summary(summary):
+    word_list = summary.split(' ')
+    idx = 0
+    while idx < len(word_list):
+        if word_list[idx] in BRACKETS:
+            word_list[idx] = BRACKETS[word_list[idx]]
+        idx += 1
+    return ' '.join(word for word in word_list)
+
+
+def clean_tweet(tweet):
+    word_list = tweet.split(' ')
+    # print(word_list)
+    while word_list[0] == "rt":
+        word_list = word_list[3:]
+    idx = 0
+    while idx < len(word_list):
+        if word_list[idx] == '' or word_list[idx] == "..." or word_list[idx] == ":" \
+                or word_list[idx] == "pdf" or word_list[idx] == "doc" or word_list[idx] == "~":
+            word_list = word_list[:idx] + word_list[idx + 1:]
+            idx -= 1
+        elif word_list[idx][0] == '#':
+            idx += 1
+            continue
+        elif word_list[idx] == '[':
+            jdx = idx
+            while idx < len(word_list) and word_list[idx] != ']':
+                idx += 1
+            if idx == len(word_list):
+                word_list = word_list[:jdx]
+            else:
+                word_list = word_list[:jdx] + word_list[idx+1:]
+            idx = jdx - 1
+        elif idx+1 < len(word_list) and word_list[idx] == '(' and word_list[idx+1] == "arxiv":
+            jdx = idx - 1        # Remove the . as well before the arxiv link
+            while idx < len(word_list) and word_list[idx][0] != ')':
+                idx += 1
+            idx += 1
+            kdx = idx
+            while idx < len(word_list) and word_list[idx][0] != '#':
+                idx += 1
+            if idx >= len(word_list):
+                idx = kdx
+            if jdx == -1:
+                word_list = word_list[idx:]
+                idx = jdx
+            elif word_list[jdx] != '.':
+                word_list = word_list[:jdx+1] + word_list[idx:]
+                idx = jdx
+            else:
+                word_list = word_list[:jdx] + word_list[idx:]
+                idx = jdx - 1
+        idx += 1
+    if word_list[-1] == '.':
+        word_list = word_list[:-1]
+    tweet = SENTENCE_START + ' '
+    tweet += ' '.join(word for word in word_list)
+    tweet += ' ' + SENTENCE_END
+    return tweet
+
+
 def write_to_bin(summaries, tweets, titles, line_nums, out_file, makevocab=False):
     """Reads the tokenized files and takes only the particular line numbers for usage writes them to a out_file."""
     print("Making bin file")
@@ -73,16 +142,17 @@ def write_to_bin(summaries, tweets, titles, line_nums, out_file, makevocab=False
         for idx, s in enumerate(summaries):
             if jdx == len(line_nums) or idx != line_nums[jdx]:
                 continue
-            if idx % 1000 == 0:
+            if idx % 100 == 0:
                 print("Writing %i of %i; %.2f percent done" %
                       (idx, num_articles, float(idx)*100.0/float(num_articles)))
 
             # Convert to lower case
-            summary = summaries[idx].lower()
-            tweet = ' '.join(["%s %s %s" % (SENTENCE_START, line + ' .', SENTENCE_END)
-                              for line in tweets[idx].lower().split('.')])
+            summary = clean_summary(summaries[idx].lower())
+            tweet = clean_tweet(tweets[idx].lower())
+            # print(tweet)
             if summary[-1] != '.':
                 summary += ' .'
+            # print(summary)
 
             # Write to tf.Example
             tf_example = example_pb2.Example()
@@ -121,8 +191,8 @@ def write_to_bin(summaries, tweets, titles, line_nums, out_file, makevocab=False
 def dataset_split(line_nums):
     random.seed(42)
     random.shuffle(line_nums)
-    split_1 = int(0.8 * num_expected_articles)
-    split_2 = int(0.9 * num_expected_articles)
+    split_1 = int(0.9 * num_expected_articles)
+    split_2 = int(0.95 * num_expected_articles)
     # print(split_1, split_2)
     train_line_nums = sorted(line_nums[:split_1])
     val_line_nums = sorted(line_nums[split_1:split_2])
@@ -166,5 +236,5 @@ if __name__ == '__main__':
     write_to_bin(summaries, tweets, titles, train_line_nums,
                  os.path.join(processed_dir, "train.bin"), makevocab=True)
 
-    # Chunk the data. This splits each of train.bin, val.bin and test.bin into smaller chunks, each containing e.g. 1000 examples, and saves them in finished_files/chunks
+    # Chunk the data. This splits each of train.bin, val.bin and test.bin into smaller chunks, each containing e.g. 100 examples, and saves them in finished_files/chunks
     chunk_all()
