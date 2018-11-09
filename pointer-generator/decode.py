@@ -26,6 +26,7 @@ import pyrouge
 import util
 import logging
 import numpy as np
+from search import shorten
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -126,10 +127,13 @@ class BeamSearchDecoder(object):
                 decoded_words = decoded_words
             decoded_output = ' '.join(decoded_words)  # single string
 
-            if len(decoded_output) >= 264:
-                decoded_output = decoded_output[:261] + " ... "
+            if len(decoded_output) >= 265:
+                decoded_output = decoded_output[:260] + " ..."
+
             # Take first line of article_withunks (This will be the title of the article) and then process it to get a shortened URL of the paper.
             # Add this URL to the end of decoded_output
+            url = shorten(article_withunks.split('.')[0])
+            decoded_output += ' ' + url
 
             if FLAGS.single_pass:
                 # write ref summary and decoded summary to file, to eval with pyrouge later
