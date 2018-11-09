@@ -23,7 +23,7 @@ BRACKETS = {'-lrb-': '(',
 
 num_expected_articles = 33445
 
-VOCAB_SIZE = 76416
+VOCAB_SIZE = 76409
 CHUNK_SIZE = 100  # num examples per chunk, for the chunked data
 
 
@@ -147,7 +147,8 @@ def write_to_bin(summaries, tweets, titles, line_nums, out_file, makevocab=False
                       (idx, num_articles, float(idx)*100.0/float(num_articles)))
 
             # Convert to lower case
-            summary = clean_summary(summaries[idx].lower())
+            summary = titles[idx].lower() + ' . ' + summaries[idx].lower()
+            summary = clean_summary(summary)
             tweet = clean_tweet(tweets[idx].lower())
             # print(tweet)
             if summary[-1] != '.':
