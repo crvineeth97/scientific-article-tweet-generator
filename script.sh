@@ -1,11 +1,9 @@
 #!/bin/bash
-#SBATCH -A research
-#SBATCH --qos=medium
+#SBATCH -A ccnsb
 #SBATCH -p long
 #SBATCH -n 40
-#SBATCH -N 1
 #SBATCH --gres=gpu:4
-#SBATCH --mem-per-cpu=3000
+#SBATCH --mem-per-cpu=MaxMemPerCPU
 #SBATCH --mem=0
 #SBATCH --time=4-00:00:00
 #SBATCH --mail-type=END
@@ -22,7 +20,7 @@ WAIT_SECONDS=10
 # Counter to keep count of how many seconds have passed
 count=0
 
-while kill $PID > /dev/null
+while kill -2 $PID > /dev/null
 do
     # Wait for one second
     sleep 1
@@ -49,7 +47,7 @@ module load cudnn/7-cuda-9.0
 module load openmpi/2.1.1-cuda9
 
 export EXP_PATH=/scratch/$USER/ire
-export NUM=2
+export NUM=1
 
 mkdir -p $EXP_PATH
 rm -rf $EXP_PATH/*
@@ -79,7 +77,7 @@ pgrep "python" | while read line; do kill_process $line; done
 # Copy the files so that we don't lose the model
 mkdir -p ada:/share2/crvineeth97/ire/$NUM
 rm -rf ada:/share2/crvineeth97/ire/$NUM/*
-rsync -aP $EXP_PATH/* ada:/share2/crvineeth97/ire/$NUM > /dev/null
+rsync -aP $EXP_PATH/* ada:/share2/crvineeth97/ire/$NUM
 echo "Files copied successfully"
 
 # Restore the best model we got after validation
@@ -87,7 +85,7 @@ python pointer-generator/run_summarization.py --mode=train --data_path=processed
 echo "Best model restored"
 
 # Again copy the files
-rsync -aP $EXP_PATH/* ada:/share2/crvineeth97/ire/$NUM > /dev/null
+rsync -aP $EXP_PATH/* ada:/share2/crvineeth97/ire/$NUM
 echo "Copied with best model"
 
 # Convert that best model into a coverage model so that we can train with coverage
@@ -107,7 +105,7 @@ sleep 5400
 pgrep "python" | while read line; do kill_process $line; done
 
 # Copy the files
-rsync -aP $EXP_PATH/* ada:/share2/crvineeth97/ire/$NUM > /dev/null
+rsync -aP $EXP_PATH/* ada:/share2/crvineeth97/ire/$NUM
 echo "Copied with coverage"
 
 # Restore the best model we got after validation
@@ -115,11 +113,11 @@ python pointer-generator/run_summarization.py --mode=train --data_path=processed
 echo "Best model with coverage restored"
 
 # Copy files
-rsync -aP $EXP_PATH/* ada:/share2/crvineeth97/ire/$NUM > /dev/null
+rsync -aP $EXP_PATH/* ada:/share2/crvineeth97/ire/$NUM
 
 # Run a single pass on the test data set to get the resultant summaries
 python pointer-generator/run_summarization.py --mode=decode --single_pass=1 --data_path=processed/chunked/test_* --vocab_path=processed/vocab --log_root=./logs --exp_name=ire &> ./logs/generated
 echo "Summaries generated"
 
 # Finally copy everything again
-rsync -aP $EXP_PATH/* ada:/share2/crvineeth97/ire/$NUM > /dev/null
+rsync -aP $EXP_PATH/* ada:/share2/crvineeth97/ire/$NUM
