@@ -100,6 +100,7 @@ class BeamSearchDecoder(object):
                 return
 
             original_article = batch.original_articles[0]  # string
+            original_title = batch.original_title[0]
             original_abstract = batch.original_abstracts[0]  # string
             # list of strings
             original_abstract_sents = batch.original_abstracts_sents[0]
@@ -130,9 +131,9 @@ class BeamSearchDecoder(object):
             if len(decoded_output) >= 265:
                 decoded_output = decoded_output[:260] + " ..."
 
-            # Take first line of article_withunks (This will be the title of the article) and then process it to get a shortened URL of the paper.
+            # Take the title and then process it to get a shortened URL of the paper.
             # Add this URL to the end of decoded_output
-            url = shorten(article_withunks.split('.')[0])
+            url = shorten(original_title)
             decoded_output += ' ' + url
 
             if FLAGS.single_pass:

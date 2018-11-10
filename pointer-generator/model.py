@@ -306,7 +306,7 @@ class SummarizationModel(object):
 
     # Apply adagrad optimizer
     optimizer = tf.train.AdagradOptimizer(self._hps.lr.value, initial_accumulator_value=self._hps.adagrad_init_acc.value)
-    with tf.device("/gpu:1"):
+    with tf.device("/gpu:0"):
       self._train_op = optimizer.apply_gradients(zip(grads, tvars), global_step=self.global_step, name='train_step')
 
 
@@ -315,7 +315,7 @@ class SummarizationModel(object):
     tf.logging.info('Building graph...')
     t0 = time.time()
     self._add_placeholders()
-    with tf.device("/gpu:2"):
+    with tf.device("/gpu:0"):
       self._add_seq2seq()
     self.global_step = tf.Variable(0, name='global_step', trainable=False)
     if self._hps.mode.value == 'train':

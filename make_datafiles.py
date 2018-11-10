@@ -83,9 +83,13 @@ def clean_tweet(tweet):
     # print(word_list)
     while word_list[0] == "rt":
         word_list = word_list[3:]
+    if "rt" in word_list:
+        i = word_list.index("rt")
+        if word_list[i + 1][0] == '@':
+            word_list = word_list[:i] + word_list[i+2]
     idx = 0
     while idx < len(word_list):
-        if word_list[idx] == '' or word_list[idx] == "..." or word_list[idx] == ":" \
+        if word_list[idx] == '' or word_list[idx] == "..." \
                 or word_list[idx] == "pdf" or word_list[idx] == "doc" or word_list[idx] == "~":
             word_list = word_list[:idx] + word_list[idx + 1:]
             idx -= 1
@@ -147,9 +151,9 @@ def write_to_bin(summaries, tweets, titles, line_nums, out_file, makevocab=False
                       (idx, num_articles, float(idx)*100.0/float(num_articles)))
 
             # Convert to lower case
-            summary = titles[idx].lower() + ' . ' + summaries[idx].lower()
-            summary = clean_summary(summary)
+            summary = clean_summary(summaries[idx].lower())
             tweet = clean_tweet(tweets[idx].lower())
+            tweet = SENTENCE_START + ' ' + titles[idx].lower() + ' ' + SENTENCE_END + ' ' + tweet
             # print(tweet)
             if summary[-1] != '.':
                 summary += ' .'

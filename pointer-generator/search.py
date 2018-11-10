@@ -5,7 +5,7 @@ import requests
 def google(string):
     for j in search(string, tld='com', lang='en', num=10, stop=1, pause=2.0):
         break
-    print('URL: ' + j)
+    # print('URL: ' + j)
     return j
 
 
