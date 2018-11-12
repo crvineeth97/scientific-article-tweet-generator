@@ -1,0 +1,239 @@
+<!DOCTYPE HTML>
+<!--
+	Directive by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Generating Tweets Out Of Scientific Articles</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<div id="header">
+				<span class="logo icon fa-paper-plane-o"></span>
+				<h1>Generating Tweets Out Of Scientific Articles</h1>
+				<!--<p>Description about the project <a href="http://html5up.net">HTML5 UP</a></p>-->
+			</div>
+
+		<!-- Main -->
+			<div id="main">
+
+				<header class="major container medium">
+					<h2> OBJECTIVE </h1>
+					<h1>To come up with an appropriate and concise 
+					<br />
+					 summary of a scientific article,
+					<br />
+					given a dataset of scientific articles.</h1>
+					<!-- 
+					<p>Tellus erat mauris ipsum fermentum<br />
+					etiam vivamus nunc nibh morbi.</p>
+					 -->
+				</header>
+				<!-- Two -->
+					<section id="two" class="major container medium">
+						<div class="inner">
+							<h2>MODEL</h2>
+							<img src="images/model.jpg" alt="" data-position="container" class="center"/>
+							<p> The abstractive summarizer was built using a pointer-generator network, which is a hybrid between a sequence-to-sequence attentional model and a pointer network. This would allow for out-of-vocabulary (OOV) words to occur in the tweets and to remove the [UNK] words that would occur due to  OOVs. This was combined with the coverage mechanism which would ensure that repetitions of the text were avoided.The sequence-to-sequence attentional model is built using bidirectional RNNs.</p>
+							<!-- <ul class="actions">
+								<li><a href="generic.html" class="button">Learn more</a></li>
+							</ul> -->
+						</div>
+					</section>
+
+				<div class="box alt container">
+					<section class="feature left">
+						<a href="#" class="image icon fa-code"><img src="images/pic01.jpg" alt="" /></a>
+						<div class="content">
+							<h3>DATASET</h3>
+							<p>The dataset of scientific articles used for this project consisted of 3 kinds of data:
+								<li>Titles : Contains titles of 33446 scientific research papers</li>
+								<li>Summaries : Abstracts of the corresponding research paper</li>
+								<li>Tweets :  Tweets that were reported for them </li>
+							</p>
+						</div>
+					</section>
+					<section class="feature right">
+						<a href="#" class="image icon"><img src="images/scores.jpg" alt="" /></a>
+						<div class="content">
+							<h3>SCORING</h3>
+							<p>Recall-Oriented Understudy for Gisting Evaluation is a set of metrics for evaluating automatic summarization of texts as well as machine translation. It works by comparing an automatically produced summary or translation against a set of reference summaries.</p>
+						</div>
+					</section>
+					<section class="feature left">
+						<a href="#" class="image icon fa-mobile"><img src="images/pic03.jpg" alt="" /></a>
+						<div class="content">
+							<h3>RESULTS</h3>
+							<p>The results are compared with the standard ROGUE scores and are shared on the github link of the project.</p>
+						</div>
+					</section>
+				</div>
+
+				
+				<div class="box container">
+					<header>
+						<h2>SCOPE OF PROJECT</h2>
+					</header>
+					<section>
+						<!--<header>
+							<h3>Scope of the project</h3>
+							<p>This is the subtitle for this particular heading</p>
+						</header>-->
+						<p>Scientific research provides a lot of new methodologies and advancements which need to be communicated to the general public. In order to make the research more impactful among people, we use the social platform, Twitter. This platform provides a medium to communicate the summary of the research papers in a precise and concise manner to billions of people. The project aims to automatically identify the tweetable content from research articles and generate the tweet.</p>
+					</section>
+					<section>
+						<header>
+							<h3>Sample Source text to be summarized</h3>
+						</header>
+						<blockquote>Germany emerge victorious in 2-0 win against Argentina on Saturday.</blockquote>
+					</section>
+					<section>
+						<header>
+							<h3>Probabale Summary</h3>
+						</header>
+						<blockquote>Germany beat Argentina 2-0.</blockquote>
+					</section>
+					<section>
+						<header>
+							<h3>Pointer-Generator Networks</h3>
+						</header>
+						<p>Pointer-generator network is a hybrid network that can choose to copy words from the source via pointing, while retaining the ability to generate words from the fixed vocabulary. The pointer-generator network makes it easy to copy words from the source text and  is even able to copy out-of-vocabulary words from the source text.</p>
+						<hr />
+						<header>
+							<h3>Coverage Mechanism</h3>
+						</header>
+						<p>The idea here is to use attention distribution to keep track of what’s been covered so far, and penalize the network for attending to same parts again. Hence, it helps us deal with the cases when summaries reproduce factual details incorrectly.</p>
+						<hr />
+						
+					</section>
+					<section>
+						<header>
+							<h3>WORK DONE</h3>
+						</header>
+						<ul class="default">
+							<li>The dataset of scientific articles was pre-processed into bin and chunk files where the binary encoded information was put into the bin files. These files were then later divided into fixed-size(1000) chunks.</li>
+							<li>The training, validation and test split used was 80, 10, 10. Random examples were chosen from the given dataset for each type.</li>
+							<li>The training mode builds models and tries to reduce the loss score and stores 3 models with the lowest loss.</li>
+							<li>The evaluation mode keeps evaluating the models produced by the training mode, on the validation set, to ensure that the loss for the model is minimum. The best model is stored.</li>
+						</ul>
+					</section>
+					<section>
+						<header>
+							<h3>Challenges Faced</h3>
+						</header>
+						<ol class="default">
+							<li>While reading data from the files, UTF-8 encoding and decoding related issues were encountered throughout the code.</li>
+							<li>The code was run using tensorflow on two laptops, but there were problems with GPU memory limit, due to either the large chunk-size or vocab size. Hence, ADA needed to be setup to run the code.</li>
+							<li>The pointer-generator code required an exact data format as input. The provided dataset had to be converted into the required format.</li>
+							<li>Fine-tuning the preprocessing and the hyperparameters to get better results.</li>
+						</ol>
+					</section>
+					<section>
+						<header>
+							<h3>Table</h3>
+						</header>
+						<div class="table-wrapper">
+							<table class="default">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>ROGUE SCORE</th>
+										<th>Confidence-Interval</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>ROGUE-1</td>
+										<td>37.65</td>
+										<td>34.74 - 40.52</td>
+									</tr>
+									<tr>
+										<td>ROGUE-2</td>
+										<td>26.15</td>
+										<td>23.00 - 29.28</td>
+									</tr>
+									<tr>
+										<td>ROGUE-3</td>
+										<td>35.71</td>
+										<td>32.83 - 38.55</td>
+									</tr>
+								</tbody>
+								<tfoot>
+									<!--
+									<tr>
+										<td colspan="3"></td>
+										<td>100.00</td>
+									</tr>-->
+								</tfoot>
+							</table>
+						</div>
+					</section>
+				</div>
+				
+
+				<footer class="major container medium">
+					<h3>RESULTS</h3>
+					<p>The summaries of the various scientific articles can be found in the below given github link.</p>
+					<ul class="actions special">
+						<li><a href="https://github.com/crvineeth97/scientific-article-tweet-generator" class="button">Github Link</a></li>
+					</ul>
+				</footer>
+
+			</div>
+
+		<!-- Footer -->
+
+			<div id="footer">
+				<div class="container medium">
+					<section id="three" class="wrapper style2 fade-up">
+						<div class="inner">
+							<h2>Team #3</h2>
+							<div class="split style1">
+								<section>
+									<ul class="contact">
+										<li>
+											<h3>Members</h3>
+											<span>
+											Rishabh Murarka (20172111)<br />
+											Swati Bhandari(20172013)<br />
+											Vineeth Chelur(201564080)<br />
+											Adithya Jain(20161109)<br />
+											</span>
+										</li>
+										<li>
+											<h3>Email</h3>
+											<a href="#">rishabh.murarka@students.iiit.ac.in</a><br />
+											<a href="#">swati.bhandari@students.iiit.ac.in</a><br />
+											<a href="#">ravindrachelur.v@research.iiit.ac.in</a><br />
+											<a href="#">adithya.jain@research.iiit.ac.in</a><br />
+										</li>
+									</ul>
+								</section>
+							</div>
+						</div>
+					</section>
+
+					<ul class="copyright">
+						<li>&copy; Untitled. All rights reserved.</li>
+					</ul>
+
+				</div>
+			</div>
+
+
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
